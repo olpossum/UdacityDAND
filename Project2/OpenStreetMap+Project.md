@@ -321,9 +321,9 @@ GROUP BY nodes.user)
 AS distcust;
 ```
 
-Hopefully this returns 563, but is taking forever to execute this query!
+I believe that this query should return 563, but my computer is taking forever to execute this query! Any queries I try with SQL JOIN statements I have left overnight and they still will not execute.  I need the JOIN here because I do not want to double count users that have contributed to both the ways and nodes. 
 
-Next up I would like to look at the users that have the most number of entries in the dataset.  This is related to my question in the data quality assessment concerning bot users and how thier contributions stack up against other users.
+Next up I would like to look at the users that have the most number of entries in the dataset.  This is related to my question in the data quality assessment concerning both users and how their contributions stack up against other users.
 
 Lets look at the nodes table:
 
