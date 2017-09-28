@@ -229,8 +229,6 @@ def audit_street_type(street_types, street_name):
 #this function will return True if the element passed to it is a street
 def is_street_name(elem):
     isstreet = (elem.attrib['k'] == "addr:street")
-    if isstreet:
-        print elem.attrib['k']
     return isstreet
 
 #takes in an abbreviation, looks it up in the mapping dict, and replaces it

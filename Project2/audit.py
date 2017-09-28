@@ -14,24 +14,29 @@ from collections import defaultdict
 import re
 import pprint
 
+#input file here
 OSMFILE = "new-orleans_louisiana.osm"
+
+#regex key definitions
 street_type_re = re.compile(r'\b\S+\.?$', re.IGNORECASE)
 ave_re = re.compile(r'\bAv', re.IGNORECASE)
 rd_re = re.compile(r'\bRd', re.IGNORECASE)
 
-
+#Lisy of expected street names in the dataset
 expected = ["Street", "Avenue", "Boulevard", "Drive", "Court", "Place", "Square", "Lane", "Road", 
             "Trail", "Parkway", "Commons", "Bayou", "Circle", "Bend", "Highway", "Point", "Way", 
             "Hollow", "Trace", "Run", "Loop", "Knee", "Ridge", "Park", "Hill", "Cove", "Alley"]
 
-# UPDATE THIS VARIABLE
+#Mapping dict to keep track of abbreiations that can be replaced
 mapping = { "St": "Street",
             "St.": "Street"
             }
 
+#this function uses iterparse to fetch all of the elements in the dataset
+#Uses code that ensures the elements are not stored in memory
+#Reference: https://discussions.udacity.com/t/lingering-questions-as-i-head-into-sql-portion-of-p3/237251/27
 def get_element(osm_file, tags=('node', 'way')):
     """Yield element if it is the right type of tag"""
-
     context = ET.iterparse(osm_file, events=('start', 'end'))
     _, root = next(context)
     for event, elem in context:
@@ -39,6 +44,8 @@ def get_element(osm_file, tags=('node', 'way')):
             yield elem
             root.clear()
 
+#this function checks to see if the street type is in the expected set()
+#In not, and the street types matches one of our regex keys, we add it to the mapping dict for cleaning later
 def audit_street_type(street_types, street_name):
     m = street_type_re.search(street_name)
     if m:
@@ -51,24 +58,25 @@ def audit_street_type(street_types, street_name):
                 mapping[street_type] = 'Road'
 
 
+#this function will return True if the element passed to it is a street
 def is_street_name(elem):
     return (elem.attrib['k'] == "addr:street")
 
-
+#main function used to control the auditing process
 def audit(osmfile):
     osm_file = open(osmfile, "r")
     street_types = defaultdict(set)
-    #for event, elem in ET.iterparse(osm_file, events=("start",)):
+    #iterate through the elements and check to see if they are street names
     for elem in get_element(osm_file):
-
         if elem.tag == "node" or elem.tag == "way":
             for tag in elem.iter("tag"):
+                #If the tag is a street name pass it to our auditing function
                 if is_street_name(tag):
                     audit_street_type(street_types, tag.attrib['v'])
     osm_file.close()
     return street_types
 
-
+#function used to update abbreviations 
 def update_name(name, mapping):
     # YOUR CODE HERE
     split = name.split(" ")
