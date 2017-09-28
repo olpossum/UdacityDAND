@@ -307,28 +307,51 @@ e.g.
 sqlite> CREATE TABLE nodes_tags(
    ...> id TEXT NOT NULL,
    ...> key TEXT NOT NULL,
-   ...> values TEXT NOT NULL,
+   ...> value TEXT NOT NULL,
    ...> type TEXT NOT NULL);
-   ```
+```
    
 ### Querying the Database
 Now that we have a functional SQL database, we can start querying our data and computing statistics/answering questions!
 
-First lets query the number of unique users in the dataset and see if it matches our initial findings during the data quality assessment.
+Here are some basic statistics about the dataset:
+
+#### Size of Files
+```
+nodes............46.4MB
+nodes_tags.......637KB
+ways.............2.2MB
+ways_nodes.......1KB
+ways_tags........4.9MB
+```
+
+#### Number of Nodes
+```SQL
+SELECT COUNT(*) FROM nodes;
+```
+
+1048573
+
+#### Number of Ways
+```SQL
+SELECT COUNT(*) FROM ways;
+```
+
+37725
+
+#### Number of Unique Users
 
 Since our nodes and ways tables are separate we will want to do our aggregation on a join of two tables.
 
 ```SQL
-SELECT COUNT(DISTINCT distcust.user) FROM
-(SELECT nodes.user
-FROM nodes
-JOIN ways
-ON nodes.user = ways.user
-GROUP BY nodes.user)
-AS distcust;
+SELECT COUNT(DISTINCT(e.uid))          
+FROM (SELECT uid FROM nodes UNION ALL SELECT uid FROM ways) e;
+
 ```
 
-I believe that this query should return 563, but my computer is taking forever to execute this query! Any queries I try with SQL JOIN statements I have left overnight and they still will not execute.  I need the JOIN here because I do not want to double count users that have contributed to both the ways and nodes. 
+495
+
+Previously this query was 563, so it is interesting that it differs from ealier. I did some investigating and found that opening/saving the file generated from my data.py code in Excel resulted in the whole file not being loaded/saved.  This must have trimmed off some users.
 
 Next up I would like to look at the users that have the most number of entries in the dataset.  This is related to my question in the data quality assessment concerning both users and how their contributions stack up against other users.
 
@@ -400,6 +423,10 @@ LIMIT 10;
 I think that this dataset could be improved further with some additional orginazation of the data into more discreet types.  For both the nodes_tags and ways_tags tables, the tag type 'regular' makes up the majority of the entries.  This does not really tell us a whole lot and limits our opportunities to learn from the data.
 
 A good way to implement this would be to audit the data using additional regex keys to get a clear picture of the relation between 'key' and 'value' in the tags.  If patterns begin to emerge, for example there are a number of occurences of 'key'=highway, 'value'=turning_circle, 'type'=regular, then we could assign a new type to tags that fit that pattern.  
+
+Additionally, if OpenStreetMap included some sort of like/dislike consensus system, the data quality could be more easily accessed.  If there was a tag associated with each element that allowed for users to vote on the quality, of a particular entry that would provide a great initial guide of what to clean up.
+
+In order for this to be implemented well, OpenStreetMap would likely need to overhaul its GUI for it to be effective.  This could provide some hurdles if there is not a large core team of OpenStreetMap developers.
 
 ### Conclusion
 
