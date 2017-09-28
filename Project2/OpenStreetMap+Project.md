@@ -350,7 +350,7 @@ It seems that there are other users with lots of entries besides the bots! Some 
 Now lets look at an aggregation of the different tag types in the dataset.
 
 nodes_tags:
-```
+```SQL
 SELECT count(*),nodes_tags.type
 FROM nodes_tags
 GROUP BY nodes_tags.type
@@ -369,7 +369,7 @@ LIMIT 10;
 4|disused
 ```
 ways_tags:
-```
+```SQL
 SELECT count(*),ways_tags.type
 FROM ways_tags
 GROUP BY ways_tags.type
