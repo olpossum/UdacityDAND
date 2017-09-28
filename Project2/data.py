@@ -164,7 +164,7 @@ import cerberus
 import schema
 
 #Input File Here
-OSM_PATH = "new-orleans_louisiana_sample.osm"
+OSM_PATH = "D:\\UdacityDAND\\Project2\\MapsDatabase\\new-orleans_louisiana_sample.osm"
 
 #Output file definitions here
 NODES_PATH = "nodes.csv"
@@ -196,6 +196,8 @@ lp_re = re.compile(r'\bLp', re.IGNORECASE)
 blvd_re = re.compile(r'\bBlvd', re.IGNORECASE)
 hwy_re = re.compile(r'\bHwy', re.IGNORECASE)
 
+#define regex key for numeric character cheks
+non_decimal = re.compile(r'[^\d]+')
 
 expected = ["Street", "Avenue", "Boulevard", "Drive", "Court", "Place", "Square", "Lane", "Road", 
             "Trail", "Parkway", "Commons", "Bayou", "Circle", "Bend", "Highway", "Point", "Way", 
@@ -205,6 +207,8 @@ expected = ["Street", "Avenue", "Boulevard", "Drive", "Court", "Place", "Square"
 mapping = { "St": "Street",
             "St.": "Street" }
 
+#keeps track of postal codes that we change
+postcode_changes = {}
 #this function checks to see if the street type is in the expected set()
 #In not, and the street types matches one of our regex keys, we add it to the mapping dict for cleaning later
 def audit_street_type(street_types, street_name):
@@ -226,9 +230,26 @@ def audit_street_type(street_types, street_name):
             elif hwy_re.search(street_type):
                 mapping[street_type] = 'Highway'
 
+"""this function checks to see if the postal code is all numeric digits and > len=5
+if not, it will remove the non numeric characters"""
+def audit_post_code(postal_code,postcode_changes):
+    print postal_code
+    if not postal_code.isdigit() and len(postal_code) > 5:
+        new_postal = non_decimal.sub('',postal_code)
+        postcode_changes[postal_code] = new_postal
+        print postcode_changes
+        return new_postal
+    else:
+        return postal_code
+
 #this function will return True if the element passed to it is a street
 def is_street_name(elem):
     isstreet = (elem.attrib['k'] == "addr:street")
+    return isstreet
+
+#this function will return True if the element passed to it is a postal code
+def is_postal_code(elem):
+    isstreet = (elem.attrib['k'] == "addr:postcode")
     return isstreet
 
 #takes in an abbreviation, looks it up in the mapping dict, and replaces it
@@ -284,6 +305,24 @@ def shape_element(element, node_attr_fields=NODE_FIELDS, way_attr_fields=WAY_FIE
                         tag_dict['key'] = key[:-1]
                         #we know the type is street_name so we should check to see if any abbreviations can be updated
                         tag_dict['value'] = update_name(elem.attrib['v'], mapping)
+                        tag_dict['type'] = split_tag[0]
+                    #here we check if the type is postal_code and audit accordingly
+                    if len(split_tag) == 1 and is_postal_code(tag):
+                        tag_dict['key'] = elem.attrib['k']
+                        #we know the type is street_name so we should check to see if any abbreviations can be updated
+                        tag_dict['value'] = audit_post_code(elem.attrib['v'], postcode_changes)
+                        tag_dict['type'] = 'regular'
+                    # if the tag has a colon, handle the multiple components to accurately represent key and type
+                    #here we check if the type is postal_code and audit accordingly
+                    elif len(split_tag) > 1 and is_postal_code(tag):
+                        keyiter = iter(split_tag)
+                        keyiter.next()
+                        key = ''
+                        for item in keyiter:
+                            key += item + ":"
+                        tag_dict['key'] = key[:-1]
+                        #we know the type is street_name so we should check to see if any abbreviations can be updated
+                        tag_dict['value'] = audit_post_code(elem.attrib['v'], postcode_changes)
                         tag_dict['type'] = split_tag[0]
                     # if the tag "k" value did not have a colon, we can directly work with K ad v
                     #here we can assume the type is 'regular'' and not street
@@ -434,4 +473,5 @@ if __name__ == '__main__':
     # Note: Validation is ~ 10X slower. For the project consider using a small
     # sample of the map when validating.
     process_map(OSM_PATH, validate=True)
+    pprint(postcode_changes)
 

@@ -231,13 +231,20 @@ Using the data.py file provided in our lessons as a starting point, I was able t
 
 #### Cleaning Street Names
 
-The cleaning operation I chose was to ensure that all of the street type abbreviations (e.g Ave. Av. St.) were changed to the full street type (e.g. Avenue, Street). 
+The first cleaning operation I chose was to ensure that all of the street type abbreviations (e.g Ave. Av. St.) were changed to the full street type (e.g. Avenue, Street). 
 
 #### Problem 3: (Pot) Holy Abbreviations
 After cleaning the data using data.py the first time I noticed that the 'St' regex key also changed all of the abbreviations for "Saint" (St.) to Street!  The state of Louisiana is divided into "Parishes" that take the place of what would be "Counties" in most other states.  The roman catholic origins of this system result in many of the Parishes being named after Saints (e.g. Saint Tammany Parish, Saint Charles Parish etc).
 
 The solution for this issue was to implement checks in my cleaning routines that ensure only street names are attempted to be cleaned. Previously I was passing all tags to my cleaning function.  This worked!
 
+#### Cleaning Postal Codes
+
+The next cleaning operation I implemented is related to postal codes.  I implemented code that checks if the postal code is > 5 characters and contains some non numeric digits.  If this returns true, then we remove the non numeric characters and return only the numeric ones.  This should clean up any data that includes states in the zip (e.g. LA70123).
+
+The following two Stack Overflow posts helped me accomplish this:
+- [REGEX Check for Only Numbers](https://stackoverflow.com/questions/21388541/how-do-you-check-in-python-whether-a-string-contains-only-numbers)
+- [Strip Non Numeric Characters with REGEX](https://stackoverflow.com/questions/947776/strip-all-non-numeric-characters-except-for-from-a-string-in-python)
 ### Importing Data into SQL Databaase
 Following the creation of my cleaned, shaped .csv files I needed to import them into a SQL database.  I used a discussion [here](https://discussions.udacity.com/t/creating-db-file-from-csv-files-with-non-ascii-unicode-characters/174958/2) on the Udacity forums as a reference to manually import the csv files into the database.
 

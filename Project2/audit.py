@@ -62,6 +62,10 @@ def audit_street_type(street_types, street_name):
 def is_street_name(elem):
     return (elem.attrib['k'] == "addr:street")
 
+#this function will return True if the element passed to it is a postal code
+def is_postal_code(elem):
+    ispostal = (elem.attrib['k'] == "addr:street")
+    return ispostal
 #main function used to control the auditing process
 def audit(osmfile):
     osm_file = open(osmfile, "r")
