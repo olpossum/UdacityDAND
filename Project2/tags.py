@@ -70,5 +70,6 @@ def process_map(filename):
 
 #Main function
 if __name__ == "__main__":
-    keys = process_map('C:\\Users\\Andy\\Documents\\OpenStreetMap\\new-orleans_louisiana_sample.osm')
+    #keys = process_map('C:\\Users\\Andy\\Documents\\OpenStreetMap\\new-orleans_louisiana_sample.osm')
+    keys = process_map('D:\\UdacityDAND\\Project2\\MapsDatabase\\new-orleans_louisiana_sample.osm')
     pprint.pprint(keys)
