@@ -4,9 +4,10 @@
 import xml.etree.cElementTree as ET  # Use cElementTree or lxml if too slow
 
 #OSM_FILE should be the file for input into the sampler script
-OSM_FILE = "new-orleans_louisiana.osm"  
+#OSM_FILE = "new-orleans_louisiana.osm"  
+OSM_FILE = "D:\\UdacityDAND\\Project2\\MapsDatabase\\new-orleans_louisiana.osm"  
 #SAMPLE_FILE should be file intended as output from the sample script
-SAMPLE_FILE = "new-orleans_louisiana_sample.osm"
+SAMPLE_FILE = "D:\\UdacityDAND\\Project2\\MapsDatabase\\new-orleans_louisiana_sample.osm"
 
 k = 10 # Parameter: take every k-th top level element
 
